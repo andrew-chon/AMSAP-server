@@ -5,10 +5,12 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -28,5 +30,13 @@ export class UsersController {
   @Delete('/:id')
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
+  }
+
+  @Patch('/:id')
+  update(
+    @Body() updateUserDto: UpdateUserDto,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.usersService.update(id, updateUserDto);
   }
 }
