@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Patch,
@@ -23,7 +24,7 @@ export class UsersController {
   }
 
   @Get('/:id')
-  findUser(@Param('id', ParseIntPipe) id: number) {
+  findUser(@Param('id', ParseIntPipe) id: number): Promise<User> {
     return this.usersService.findOne(id);
   }
 
