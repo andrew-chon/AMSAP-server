@@ -10,11 +10,14 @@ import {
   Post,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
+import { Serialize } from 'interceptors/serialize.interceptor';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { UserDto } from './dtos/user.dto';
 import { UsersService } from './users.service';
 
-@Controller('users')
+@Serialize(UserDto)
+@Controller('auth')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -24,8 +27,14 @@ export class UsersController {
   }
 
   @Get('/:id')
-  findUser(@Param('id', ParseIntPipe) id: number): Promise<User> {
-    return this.usersService.findOne(id);
+  async findUser(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    const user = await this.usersService.findOne(id);
+
+    if (!user) {
+      throw new NotFoundException(`User with ID:${id} not found`);
+    }
+
+    return user;
   }
 
   @Delete('/:id')
