@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Session,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { Serialize } from 'interceptors/serialize.interceptor';
@@ -26,13 +27,34 @@ export class UsersController {
   ) {}
 
   @Post('/signup')
-  createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.authService.signup(createUserDto);
+  async createUser(
+    @Body() createUserDto: CreateUserDto,
+    @Session() session: any,
+  ): Promise<User> {
+    const user = await this.authService.signup(createUserDto);
+    session.userId = user.id;
+    return user;
   }
 
+  // TODO change dto?
   @Post('/signin')
-  signinUser(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.authService.signin(createUserDto);
+  async signinUser(
+    @Body() createUserDto: CreateUserDto,
+    @Session() session: any,
+  ): Promise<User> {
+    const user = await this.authService.signin(createUserDto);
+    session.userId = user.id;
+    return user;
+  }
+
+  @Post('/signout')
+  signOut(@Session() session: any) {
+    session.userId = null;
+  }
+
+  @Get('whoami')
+  whoAmI(@Session() session: any) {
+    return this.usersService.findOne(session.userId);
   }
 
   @Get('/:id')
