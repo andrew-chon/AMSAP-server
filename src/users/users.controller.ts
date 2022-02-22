@@ -9,17 +9,21 @@ import {
   Patch,
   Post,
   Session,
+  UseInterceptors,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { Serialize } from 'interceptors/serialize.interceptor';
 import { AuthService } from './auth.service';
+import { CurrentUser } from './decorators/current-user.decorator';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UserDto } from './dtos/user.dto';
+import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
 import { UsersService } from './users.service';
 
 @Serialize(UserDto)
 @Controller('auth')
+@UseInterceptors(CurrentUserInterceptor)
 export class UsersController {
   constructor(
     private usersService: UsersService,
@@ -53,8 +57,8 @@ export class UsersController {
   }
 
   @Get('whoami')
-  whoAmI(@Session() session: any) {
-    return this.usersService.findOne(session.userId);
+  whoAmI(@CurrentUser() user: any) {
+    return user;
   }
 
   @Get('/:id')
