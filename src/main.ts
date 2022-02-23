@@ -1,21 +1,16 @@
-import { ValidationPipe } from '@nestjs/common';
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { PrismaClientExceptionFilter } from './prisma/prisma-client-exception.filter';
-import { PrismaService } from './prisma/prisma.service';
+import { loadApp } from './loader';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  loadApp(app);
 
-  const prismaService: PrismaService = app.get(PrismaService);
-  prismaService.enableShutdownHooks(app);
+  const configService = app.get(ConfigService);
+  const PORT = configService.get('PORT');
 
-  // 👇 apply PrismaClientExceptionFilter to entire application, requires HttpAdapterHost because it extends BaseExceptionFilter
-  const { httpAdapter } = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
-
-  await app.listen(3000);
+  await app.listen(PORT);
 }
 bootstrap();

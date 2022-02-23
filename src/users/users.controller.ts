@@ -35,6 +35,11 @@ export class UsersController {
     return this.authService.signin(createUserDto);
   }
 
+  @Get('/whoami')
+  whoAmI(): String {
+    return 'hello';
+  }
+
   @Get('/:id')
   async findUser(@Param('id', ParseIntPipe) id: number): Promise<User> {
     const user = await this.usersService.findOne(id);
