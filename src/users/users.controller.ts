@@ -8,8 +8,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Res,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
+import { Response } from 'express';
 import { Serialize } from 'interceptors/serialize.interceptor';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -26,18 +28,41 @@ export class UsersController {
   ) {}
 
   @Post('/signup')
-  createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.authService.signup(createUserDto);
+  async createUser(
+    @Body() createUserDto: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<User> {
+    const user = await this.authService.signup(createUserDto);
+    const token = this.authService.getJwtToken(user.id);
+
+    res.cookie('access-token', token, { httpOnly: true, domain: 'localhost' });
+
+    return user;
   }
 
   @Post('/signin')
-  signinUser(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.authService.signin(createUserDto);
+  async signinUser(
+    @Body() createUserDto: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<User> {
+    const user = await this.authService.signin(createUserDto);
+    const token = this.authService.getJwtToken(user.id);
+
+    res.cookie('access-token', token, { httpOnly: true, domain: 'localhost' });
+
+    return user;
   }
 
   @Get('/whoami')
-  whoAmI(): string {
-    return 'hello';
+  whoAmI(@Res() res: Response) {
+    const token = this.authService.getJwtToken(123);
+
+    res
+      .cookie('access-token', token, {
+        httpOnly: true,
+        domain: 'localhost',
+      })
+      .send('hello');
   }
 
   @Get('/:id')

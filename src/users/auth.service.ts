@@ -3,6 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -10,7 +11,10 @@ import { UsersService } from './users.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
   async signup(createUserDto: CreateUserDto): Promise<User> {
     const hashedPassword = await argon2.hash(createUserDto.password);
@@ -33,5 +37,10 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  getJwtToken(userId: number): string {
+    const payload: JwtPayload = { userId };
+    return this.jwtService.sign(payload);
   }
 }
