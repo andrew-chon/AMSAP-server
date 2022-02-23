@@ -36,7 +36,7 @@ export class UsersController {
   }
 
   @Get('/whoami')
-  whoAmI(): String {
+  whoAmI(): string {
     return 'hello';
   }
 
