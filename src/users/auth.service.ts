@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { JwtPayload } from './jwt-payload.interface';
 import { UsersService } from './users.service';
 
 @Injectable()
