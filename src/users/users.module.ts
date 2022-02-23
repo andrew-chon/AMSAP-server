@@ -6,12 +6,6 @@ import { UsersService } from './users.service';
 
 @Module({
   controllers: [UsersController],
-  providers: [
-    UsersService,
-    PrismaService,
-    AuthService,
-    // If I want to globally scoped interceptor
-    // { useClass: CurrentUserInterceptor, provide: APP_INTERCEPTOR },
-  ],
+  providers: [UsersService, PrismaService, AuthService],
 })
 export class UsersModule {}
