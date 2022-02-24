@@ -2,6 +2,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientExceptionFilter } from './prisma/prisma-client-exception.filter';
 import { PrismaService } from './prisma/prisma.service';
+import * as cookieParser from 'cookie-parser';
 
 export const loadApp = (app: INestApplication) => {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
@@ -12,4 +13,6 @@ export const loadApp = (app: INestApplication) => {
   // 👇 apply PrismaClientExceptionFilter to entire application, requires HttpAdapterHost because it extends BaseExceptionFilter
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
+
+  app.use(cookieParser());
 };
